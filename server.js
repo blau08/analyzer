@@ -2,23 +2,27 @@ import express from "express";
 
 const app = express();
 
-app.use(express.json());
-
-// simple CORS middleware
+// CORS must come BEFORE routes
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Origin", "https://founderslab8.web.app");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+    return res.status(204).end();
   }
 
   next();
 });
 
+app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send("Founders Lab API running");
+});
+
+app.get("/ping", (req, res) => {
+  res.json({ ok: true });
 });
 
 app.post("/analyze", async (req, res) => {
@@ -43,7 +47,7 @@ Create a short AI strategy report including:
 4. Efficiency improvements
 `;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -57,12 +61,10 @@ Create a short AI strategy report including:
       })
     });
 
-    const data = await response.json();
+    const data = await openaiResponse.json();
 
-    console.log("OpenAI response received");
-
-    if (!response.ok) {
-      console.log("OpenAI error:", data);
+    if (!openaiResponse.ok) {
+      console.error("OpenAI error:", data);
       return res.status(500).json({
         report: "OpenAI request failed.",
         error: data
@@ -82,6 +84,6 @@ Create a short AI strategy report including:
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
