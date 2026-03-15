@@ -43,7 +43,7 @@ Write a short report including:
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-5.4",
         messages: [
           { role: "user", content: prompt }
         ]
