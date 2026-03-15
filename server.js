@@ -4,8 +4,17 @@ const app = express();
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   next();
 });
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Founders Lab API running");
@@ -17,9 +26,6 @@ app.get("/ping", (req, res) => {
 
 app.get("/analyze", async (req, res) => {
   try {
-    console.log("GET /analyze hit");
-    console.log("Query:", req.query);
-
     const website = req.query.website || "";
     const industry = req.query.industry || "";
     const pain = req.query.pain || "";
@@ -32,7 +38,6 @@ Industry: ${industry}
 Main problem: ${pain}
 
 Create a short AI strategy report including:
-
 1. Automation opportunities
 2. Internal AI tools
 3. Marketing automation ideas
