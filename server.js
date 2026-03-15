@@ -1,21 +1,11 @@
 import express from "express";
-import cors from "cors";
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-
-app.use(cors({
-  origin: [
-    "https://founderslab8.web.app",
-    "https://founderslab8.firebaseapp.com"
-  ],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-app.use(express.json());
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("Founders Lab API running");
@@ -25,12 +15,14 @@ app.get("/ping", (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/analyze", async (req, res) => {
+app.get("/analyze", async (req, res) => {
   try {
-    console.log("POST /analyze hit");
-    console.log("Body:", req.body);
+    console.log("GET /analyze hit");
+    console.log("Query:", req.query);
 
-    const { website, industry, pain } = req.body;
+    const website = req.query.website || "";
+    const industry = req.query.industry || "";
+    const pain = req.query.pain || "";
 
     const prompt = `
 Analyze this business and suggest AI automation opportunities.
