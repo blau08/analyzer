@@ -1,19 +1,16 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 
-// CORS must come BEFORE routes
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://founderslab8.web.app");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
-  next();
-});
+app.use(cors({
+  origin: [
+    "https://founderslab8.web.app",
+    "https://founderslab8.firebaseapp.com"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 app.use(express.json());
 
