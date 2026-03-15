@@ -17,24 +17,40 @@ app.get("/analyze", (req, res) => {
   const industry = req.query.industry || "";
   const pain = req.query.pain || "";
 
-  const report = `
-AI Opportunity Report
+  const prompt = `
+Analyze this organization and suggest AI automation opportunities.
 
 Website: ${website}
 Industry: ${industry}
+Main operational challenge: ${pain}
 
-Key opportunities:
+Write a short report including:
 
-1. Automate admin workflows
-2. AI chatbot for inquiries
-3. AI marketing content generation
-4. CRM automation
-5. Workflow optimization
-
-Estimated efficiency gain: 20-40%
+1. Administrative automation opportunities
+2. Customer service AI opportunities
+3. Marketing automation
+4. Internal workflow AI tools
+5. Estimated efficiency gains
 `;
 
-  res.json({ report });
+const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+  },
+  body: JSON.stringify({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "user", content: prompt }
+    ]
+  })
+});
+
+const data = await aiResponse.json();
+
+res.json({
+  report: data.choices[0].message.content
 });
 
 const PORT = process.env.PORT || 3000;
