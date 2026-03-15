@@ -3,14 +3,15 @@ import express from "express";
 const app = express();
 
 app.get("/", (req, res) => {
-  res.send("Founders Lab API is running");
+  res.send("Founders Lab API running");
 });
 
 app.get("/ping", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.get("/analyze", (req, res) => {
+app.get("/analyze", async (req, res) => {
+
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const website = req.query.website || "";
@@ -22,7 +23,7 @@ Analyze this organization and suggest AI automation opportunities.
 
 Website: ${website}
 Industry: ${industry}
-Main operational challenge: ${pain}
+Main problem: ${pain}
 
 Write a short report including:
 
@@ -33,24 +34,38 @@ Write a short report including:
 5. Estimated efficiency gains
 `;
 
-const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-  },
-  body: JSON.stringify({
-    model: "gpt-5.3-codex",
-    messages: [
-      { role: "user", content: prompt }
-    ]
-  })
-});
+  try {
 
-const data = await aiResponse.json();
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "user", content: prompt }
+        ]
+      })
+    });
 
-res.json({
-  report: data.choices[0].message.content
+    const data = await aiResponse.json();
+
+    res.json({
+      report: data.choices[0].message.content
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      report: "AI analysis failed"
+    });
+
+  }
+
 });
 
 const PORT = process.env.PORT || 3000;
