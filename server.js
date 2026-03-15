@@ -2,85 +2,43 @@ import express from "express";
 
 const app = express();
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
-  next();
-});
-
-app.use(express.json());
-
 app.get("/", (req, res) => {
-  res.send("Founders Lab API running");
+  res.send("Founders Lab API is running");
 });
 
 app.get("/ping", (req, res) => {
-  res.json({ ok: true });
+  res.json({ status: "ok" });
 });
 
-app.get("/analyze", async (req, res) => {
-  try {
-    const website = req.query.website || "";
-    const industry = req.query.industry || "";
-    const pain = req.query.pain || "";
+app.get("/analyze", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
-    const prompt = `
-Analyze this business and suggest AI automation opportunities.
+  const website = req.query.website || "";
+  const industry = req.query.industry || "";
+  const pain = req.query.pain || "";
+
+  const report = `
+AI Opportunity Report
 
 Website: ${website}
 Industry: ${industry}
-Main problem: ${pain}
 
-Create a short AI strategy report including:
-1. Automation opportunities
-2. Internal AI tools
-3. Marketing automation ideas
-4. Efficiency improvements
+Key opportunities:
+
+1. Automate admin workflows
+2. AI chatbot for inquiries
+3. AI marketing content generation
+4. CRM automation
+5. Workflow optimization
+
+Estimated efficiency gain: 20-40%
 `;
 
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
-    });
-
-    const data = await openaiResponse.json();
-
-    if (!openaiResponse.ok) {
-      console.error("OpenAI error:", data);
-      return res.status(500).json({
-        report: "OpenAI request failed.",
-        error: data
-      });
-    }
-
-    res.json({
-      report: data.choices?.[0]?.message?.content || "No report returned."
-    });
-  } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({
-      report: "Server error.",
-      error: error.message
-    });
-  }
+  res.json({ report });
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
