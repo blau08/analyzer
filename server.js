@@ -40,7 +40,7 @@ const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
     "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
   },
   body: JSON.stringify({
-    model: "gpt-4o-mini",
+    model: "gpt-5.3-codex",
     messages: [
       { role: "user", content: prompt }
     ]
